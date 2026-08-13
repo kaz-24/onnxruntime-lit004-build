@@ -1,1 +1,46 @@
+name: Build ONNX Runtime for lit004
 
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ORT 1.16.3 / CPython 3.10 / manylinux2014 / CPUINFO OFF
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout build pack
+        uses: actions/checkout@v4
+
+      - name: Build wheel in manylinux2014 container
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p dist
+          docker run --rm \
+            -v "$PWD:/work" \
+            -w /work \
+            quay.io/pypa/manylinux2014_x86_64 \
+            bash /work/scripts/build_ort_manylinux2014.sh
+
+      - name: Show outputs
+        shell: bash
+        run: |
+          set -euxo pipefail
+          ls -lah dist/
+          cat dist/build-info.txt
+
+      - name: Upload lit004 wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: onnxruntime-1.16.3-lit004-cp310-manylinux2014-cpuinfo-off
+          path: |
+            dist/*.whl
+            dist/build-info.txt
+            dist/test-output.txt
+          if-no-files-found: error
+          retention-days: 30
