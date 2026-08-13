@@ -6,6 +6,7 @@ PYBIN="/opt/python/cp310-cp310/bin"
 PYTHON="$PYBIN/python"
 WORK="/tmp/ort-lit004-build"
 SRC="$WORK/onnxruntime"
+EIGEN="$WORK/eigen"
 OUT="/work/dist"
 
 export PATH="$PYBIN:$PATH"
@@ -34,6 +35,10 @@ yum install -y git which make patch
 git clone --branch "v${ORT_VERSION}" --recursive \
   https://github.com/microsoft/onnxruntime.git "$SRC"
 
+# Eigenを別途取得
+git clone https://gitlab.com/libeigen/eigen.git "$WORK/eigen"
+git -C "$WORK/eigen" checkout e7248b26a1ed53fa030c5c459f7ea095dfd276ac
+
 cd "$SRC"
 
 # Build CPU-only Python wheel. CPUINFO is explicitly disabled because
@@ -46,6 +51,8 @@ cd "$SRC"
   --skip_tests \
   --parallel 2 \
   --allow_running_as_root \
+  --use_preinstalled_eigen \
+  --eigen_path "$WORK/eigen" \
   --cmake_extra_defines onnxruntime_ENABLE_CPUINFO=OFF
 
 CACHE="$SRC/build/Linux/Release/CMakeCache.txt"
