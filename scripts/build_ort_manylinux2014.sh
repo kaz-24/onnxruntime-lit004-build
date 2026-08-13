@@ -45,8 +45,8 @@ cd "$SRC"
   --build_wheel \
   --skip_tests \
   --parallel 2 \
-  --cmake_extra_defines \
-    onnxruntime_ENABLE_CPUINFO=OFF
+  --allow_running_as_root \
+  --cmake_extra_defines onnxruntime_ENABLE_CPUINFO=OFF
 
 CACHE="$SRC/build/Linux/Release/CMakeCache.txt"
 if [[ ! -f "$CACHE" ]]; then
